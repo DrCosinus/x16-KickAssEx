@@ -3,19 +3,17 @@ const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-let configuration = vscode.workspace.getConfiguration("x16-kickAss");
-let outputChannel = vscode.window.createOutputChannel("X16 KickAss");
+let configuration = vscode.workspace.getConfiguration("x16-kickass-ex");
+let outputChannel = vscode.window.createOutputChannel("X16 KickAssEX");
 
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+function activate(context)
+{
+	let commandBuild = vscode.commands.registerCommand("x16-kickass-ex.build", buildPrg);
 
-	let commandBuild = vscode.commands.registerCommand("x16-kickass.build", function () {
-		buildPrg();
-	});
-
-	let commandRun = vscode.commands.registerCommand("x16-kickass.run", function () {
+	let commandRun = vscode.commands.registerCommand("x16-kickass-ex.run", function () {
 		runPrg(buildPrg()); // Build then run 
 	});
 
@@ -23,7 +21,6 @@ function activate(context) {
 	context.subscriptions.push(commandRun);
 }
 
-exports.activate = activate;
 function deactivate() { }
 
 module.exports = {
@@ -47,7 +44,7 @@ function buildPrg() {
 	let kickAssJar = configuration.get("kickAssJar");
 
 	outputChannel.clear;
-	outputChannel.show(0);
+	outputChannel.show(false);
 
 	if (java == "") {
 		vscode.window.showErrorMessage("JavaVM not defined!");
@@ -138,14 +135,6 @@ function runPrg(prgFile) {
 	let x16emuWarp = configuration.get("x16emulatorWarp");
 	let x16emuSDCard = configuration.get("x16emulatorSDCard");
 
-	if (fs.existsSync(x16emuSDCard)) {
-		//file exists
-	} else {
-		vscode.window.showErrorMessage("Commander X16 emulator error.");
-		outputChannel.appendLine("Commander X16 sdcard path not correctly defined: " + x16emuSDCard + "! Check x16-kickAss.x16emulatorSDCard in Extension Settings.");
-		return;
-	}
-
 	// If optional arguments are defined, add them to the arguments list
 	let args = ["-scale", x16emuScale, "-prg", prgFile];
 	if (x16emuKeymap) {
@@ -159,8 +148,15 @@ function runPrg(prgFile) {
 		args.push("-run");
 	}
 	if (x16emuSDCard) {
-		args.push("-sdcard");
-		args.push(x16emuSDCard);
+		if (fs.existsSync(x16emuSDCard)) {
+			//file exists
+			args.push("-sdcard");
+			args.push(x16emuSDCard);
+		} else {
+			vscode.window.showErrorMessage("Commander X16 emulator error.");
+			outputChannel.appendLine("Commander X16 sdcard path not correctly defined: " + x16emuSDCard + "! Check x16-kickAss.x16emulatorSDCard in Extension Settings.");
+			return;
+		}
 	}
 	if (x16emuWarp) {
 		args.push("-warp");
@@ -168,14 +164,11 @@ function runPrg(prgFile) {
 
 	// Display the command that will be executed 
 
-	outputChannel.append(x16emulator + " ");
-	args.forEach(function (a) {
-		outputChannel.append(a + " ");
-	});
+	outputChannel.append(x16emulator + " " + args.join(" "));
 
 	// start the emulator
 	//let runX16emulator = cp.spawn(x16emulator, args, { cwd: prgFile.dirname, detached: true, stdio: "inherit", shell: true });
-	let runX16emulator = cp.spawn(x16emulator, args, { cwd: prgFile.dirname, detached: true});
+	let runX16emulator = cp.spawn(x16emulator, args, { cwd: prgFile.dirname, detached: true });
 
 	runX16emulator.stdout.on("data", (data) => {
 		outputChannel.appendLine("\nx16emulator output: \n" + data);
