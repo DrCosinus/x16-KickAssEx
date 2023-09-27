@@ -55,7 +55,9 @@ The code is Open Source and aviable on GitHub.
 ## Release Notes
 
 ### [1.2.0] Work in progress - Not released
-- '-SDCard' option is optional.
+- [x] '-SDCard' option is optional.
+- [x] fix the emulator working directory
+- [ ] outdir as an option
 
 ### [1.1.0]
 - Added '-SDCard' option in the extensions settings for the Commander X16 emulator.
