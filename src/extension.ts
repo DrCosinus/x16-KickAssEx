@@ -9,7 +9,7 @@ const display_name = manifest.displayName;
 const conf_section = vscode.workspace.getConfiguration(config_section_name);
 const outputChannel = vscode.window.createOutputChannel(display_name);
 
-function activate(context: { subscriptions: vscode.Disposable[]; })
+function activate(context: vscode.ExtensionContext)
 {
 	for (const cmd of manifest.contributes.commands)
 	{
@@ -65,7 +65,7 @@ function buildPrg()
 	outputChannel.clear;
 	outputChannel.show(false);
 
-	const java = conf_section.get("java");
+	const java : string = conf_section.get("java") ?? "";
 	if (java == "")
 	{
 		vscode.window.showErrorMessage("JavaVM not defined!");
@@ -73,7 +73,7 @@ function buildPrg()
 		return "";
 	}
 	
-	let kickAssJar = conf_section.get("kickAssJar");
+	const kickAssJar : string = conf_section.get("kickAssJar") ?? "";
 	if (kickAssJar == "")
 	{
 		vscode.window.showErrorMessage("Kick Assembler JAR path not defined!");
@@ -122,11 +122,7 @@ function buildPrg()
 	return prgFilepath;
 }
 
-/**
- * This function runs the Commander X16 emulator with the .prg file build by Kick Assembler in the build() function
- * @param {string} prgFile
- */
-function runPrg(prgFile)
+function runPrg(prgFile: string)
 {
 	outputChannel.appendLine("X16 emulator starting :");
 
@@ -137,7 +133,7 @@ function runPrg(prgFile)
 	}
 
 	// Get settings from user configuration and check if they are defined
-	const x16emulator = conf_section.get('x16emulator');
+	const x16emulator : string = conf_section.get('x16emulator') ?? "";
 	if (x16emulator == "")
 	{
 		vscode.window.showErrorMessage('Commander X16 emulator error.');
@@ -151,12 +147,12 @@ function runPrg(prgFile)
 		return;
 	}
 	
-	const x16emuScale = conf_section.get("x16emulatorScale");
+	const x16emuScale : string = conf_section.get("x16emulatorScale") ?? "";
 	
 	// If optional arguments are defined, add them to the arguments list
-	let args = ["-scale", x16emuScale, "-prg", path.basename(prgFile)];
+	let args : string[] = ["-scale", x16emuScale, "-prg", path.basename(prgFile)];
 	
-	const x16emuKeymap = conf_section.get("x16emulatorKeymap");
+	const x16emuKeymap : string = conf_section.get("x16emulatorKeymap") ?? "";
 	if (x16emuKeymap)
 	{
 		args.push("-keymap");
@@ -175,7 +171,7 @@ function runPrg(prgFile)
 		args.push("-run");
 	}
 	
-	const x16emuSDCard = conf_section.get("x16emulatorSDCard");
+	const x16emuSDCard : string = conf_section.get("x16emulatorSDCard") ?? "";
 	if (x16emuSDCard) {
 		if (fs.existsSync(x16emuSDCard)) {
 			//file exists
