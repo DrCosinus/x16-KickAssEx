@@ -53,7 +53,7 @@ The code is Open Source and aviable on GitHub.
 ### Prerequisites
 
 ## Release Notes
-
+ 
 ### [1.2.0] Work in progress - Not released
 - [x] '-SDCard' option is optional.
 - [x] fix the emulator working directory
