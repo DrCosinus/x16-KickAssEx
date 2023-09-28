@@ -23,11 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// const vscode = require("vscode");
-// const cp = require("child_process");
-// const fs = require("fs");
-// const path = require("path");
-// const manifest = require("./package.json")
+exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
 const cp = __importStar(require("child_process"));
 const fs = __importStar(require("fs"));
@@ -37,103 +33,102 @@ const config_section_name = manifest.name;
 const display_name = manifest.displayName;
 const conf_section = vscode.workspace.getConfiguration(config_section_name);
 const outputChannel = vscode.window.createOutputChannel(display_name);
-/**
- * @param {vscode.ExtensionContext} context
- */
 function activate(context) {
-    // for (const cmd of manifest.contributes.commands)
-    // {
-    // 	outputChannel.appendLine(`Add Command ${cmd.command}`)
-    // 	switch(cmd.title)
-    // 	{
-    // 		case "X16 Build":
-    // 			let commandBuild = vscode.commands.registerCommand(cmd.command, buildPrg);
-    // 			context.subscriptions.push(commandBuild);
-    // 			outputChannel.appendLine(`X16 Build`)
-    // 			break;
-    // 		case "X16 Build and Run":
-    // 			let commandRun = vscode.commands.registerCommand(cmd.command, () => runPrg(buildPrg())); 
-    // 			context.subscriptions.push(commandRun);
-    // 			outputChannel.appendLine(`X16 Build and Run`)
-    // 			break;
-    // 		default:
-    // 			outputChannel.appendLine(`default :(`)
-    // 	}
-    // }
-    let commandBuild = vscode.commands.registerCommand(`${config_section_name}.build`, buildPrg);
-    let commandRun = vscode.commands.registerCommand(`${config_section_name}.run`, () => runPrg(buildPrg())); // Build then run 
-    context.subscriptions.push(commandBuild);
-    context.subscriptions.push(commandRun);
+    for (const cmd of manifest.contributes.commands) {
+        outputChannel.appendLine(`Add Command ${cmd.command}`);
+        switch (cmd.title) {
+            case "X16 Build":
+                let commandBuild = vscode.commands.registerCommand(cmd.command, buildPrg);
+                context.subscriptions.push(commandBuild);
+                console.log(`${cmd.title}: OK`);
+                break;
+            case "X16 Build and Run":
+                let commandRun = vscode.commands.registerCommand(cmd.command, () => runPrg(buildPrg()));
+                context.subscriptions.push(commandRun);
+                console.log(`${cmd.title}: OK`);
+                break;
+            default:
+                console.log(`Command ${cmd.title}: Failure`);
+        }
+    }
+    // console.log(`default :(`);
+    // let commandBuild = vscode.commands.registerCommand(`${config_section_name}.build`, buildPrg);
+    // let commandRun = vscode.commands.registerCommand(`${config_section_name}.run`, () => runPrg(buildPrg())); // Build then run 
+    // context.subscriptions.push(commandBuild);
+    // context.subscriptions.push(commandRun);
 }
+exports.activate = activate;
 function deactivate() {
 }
-exports.default = 
-// module.exports =
-{
-    activate,
-    deactivate
-};
+exports.deactivate = deactivate;
 /**
 This function will build a .prg file from the assembler source with Kick Assembler and return the path & name of the generated .prg file
-@returns {string}
 */
 function buildPrg() {
-    const outDir = "bin";
-    const fileToCompile = vscode.window.activeTextEditor.document.fileName;
-    const prgFilename = path.basename(fileToCompile).replace(path.extname(fileToCompile), ".prg");
-    const workDir = path.dirname(fileToCompile);
-    const outputDir = path.join(workDir, outDir);
-    const prgFilepath = path.join(outputDir, prgFilename);
-    // Get settings from user configuration and check if they are correctly defined
-    outputChannel.clear;
-    outputChannel.show(false);
-    const java = conf_section.get("java");
-    if (java == "") {
-        vscode.window.showErrorMessage("JavaVM not defined!");
-        outputChannel.appendLine(`JavaVM not defined! Set ${config_section_name}.java in Extension Settings.`);
-        return;
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        if (editor.document.isDirty) {
+            editor.document.save().then(() => {
+                vscode.window.showInformationMessage('File saved');
+            }, (error) => {
+                vscode.window.showErrorMessage(`Error occured when saving the file: ${error}`);
+            });
+        }
+        const outDir = "bin";
+        const fileToCompile = editor.document.fileName;
+        const prgFilename = path.basename(fileToCompile).replace(path.extname(fileToCompile), ".prg");
+        const workDir = path.dirname(fileToCompile);
+        const outputDir = path.join(workDir, outDir);
+        const prgFilepath = path.join(outputDir, prgFilename);
+        // Get settings from user configuration and check if they are correctly defined
+        outputChannel.clear;
+        outputChannel.show(false);
+        const java = conf_section.get("java") ?? "";
+        if (java == "") {
+            vscode.window.showErrorMessage("JavaVM not defined!");
+            outputChannel.appendLine(`JavaVM not defined! Set ${config_section_name}.java in Extension Settings.`);
+            return "";
+        }
+        const kickAssJar = conf_section.get("kickAssJar") ?? "";
+        if (kickAssJar == "") {
+            vscode.window.showErrorMessage("Kick Assembler JAR path not defined!");
+            outputChannel.appendLine(`Kick Assembler JAR path not defined! Set ${config_section_name}.kickAssJar in Extension Settings.`);
+            return "";
+        }
+        if (!fs.existsSync(kickAssJar)) {
+            vscode.window.showErrorMessage("Kick Assembler JAR file not found.");
+            outputChannel.appendLine(`Incorrect KickAssembler Jar:"${kickAssJar}"! Check ${config_section_name}.kickAssJar in Extension Settings.`);
+            return "";
+        }
+        // Check if File to Compile is a file with one of the assembler extensions
+        const assemblerExtensions = manifest.contributes.languages[0].extensions; // [".asm", ".a", ".s", ".lib", ".inc"];
+        if (assemblerExtensions.includes(path.extname(fileToCompile))) {
+            outputChannel.appendLine(`Compiling "${fileToCompile}"`);
+        }
+        else { // if not, stop the build
+            outputChannel.appendLine("The file to compile does not appear to be an assembler file. Build process exited!");
+            return "";
+        }
+        // Create Bin Directory in working directory if it does not exist yet
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir);
+        }
+        // delete files in the bin directory
+        fs.readdirSync(outputDir).map((file) => fs.unlinkSync(path.join(outputDir, file)));
+        //  Kick Assembler with arguments
+        const args = ["-jar", kickAssJar, "-debug", "-bytedump", "-symbolfile", "-symbolfiledir", outputDir, "-showmem", "-maxAddr", "131072", "-odir", outputDir, fileToCompile];
+        //display the executed command in the output window
+        outputChannel.append(`${java} ${args.join(" ")}`);
+        // Execute Kick Assembler. The process is launched in syncrone mode as the .prg file has to be build before launching the emulator
+        let runjava = cp.spawnSync(java, args);
+        outputChannel.appendLine(runjava.stdout.toString());
+        outputChannel.appendLine("> Source file " + path.basename(fileToCompile) + " has been compiled to " + path.basename(prgFilepath));
+        // The Build() funtion returns the build .prg file
+        return prgFilepath;
     }
-    let kickAssJar = conf_section.get("kickAssJar");
-    if (kickAssJar == "") {
-        vscode.window.showErrorMessage("Kick Assembler JAR path not defined!");
-        outputChannel.appendLine(`Kick Assembler JAR path not defined! Set ${config_section_name}.kickAssJar in Extension Settings.`);
-        return;
-    }
-    if (!fs.existsSync(kickAssJar)) {
-        vscode.window.showErrorMessage("Kick Assembler JAR file not found.");
-        outputChannel.appendLine(`Incorrect KickAssembler Jar:"${kickAssJar}"! Check ${config_section_name}.kickAssJar in Extension Settings.`);
-        return;
-    }
-    // Check if File to Compile is a file with one of the assembler extensions
-    const assemblerExtensions = manifest.contributes.languages[0].extensions; // [".asm", ".a", ".s", ".lib", ".inc"];
-    if (assemblerExtensions.includes(path.extname(fileToCompile))) {
-        outputChannel.appendLine(`Compiling "${fileToCompile}"`);
-    }
-    else { // if not, stop the build
-        outputChannel.appendLine("The file to compile does not appear to be an assembler file. Build process exited!");
-        return;
-    }
-    // Create Bin Directory in working directory if it does not exist yet
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir);
-    }
-    // delete files in the bin directory
-    fs.readdirSync(outputDir).map((file) => fs.unlinkSync(path.join(outputDir, file)));
-    //  Kick Assembler with arguments
-    const args = ["-jar", kickAssJar, "-debug", "-bytedump", "-symbolfile", "-symbolfiledir", outputDir, "-showmem", "-maxAddr", "131072", "-odir", outputDir, fileToCompile];
-    //display the executed command in the output window
-    outputChannel.append(`${java} ${args.join(" ")}`);
-    // Execute Kick Assembler. The process is launched in syncrone mode as the .prg file has to be build before launching the emulator
-    let runjava = cp.spawnSync(java, args);
-    outputChannel.appendLine(runjava.stdout.toString());
-    outputChannel.appendLine("> Source file " + path.basename(fileToCompile) + " has been compiled to " + path.basename(prgFilepath));
-    // The Build() funtion returns the build .prg file
-    return prgFilepath;
+    else
+        return "";
 }
-/**
- * This function runs the Commander X16 emulator with the .prg file build by Kick Assembler in the build() function
- * @param {string} prgFile
- */
 function runPrg(prgFile) {
     outputChannel.appendLine("X16 emulator starting :");
     if (!prgFile) {
@@ -141,7 +136,7 @@ function runPrg(prgFile) {
         return;
     }
     // Get settings from user configuration and check if they are defined
-    const x16emulator = conf_section.get('x16emulator');
+    const x16emulator = conf_section.get('x16emulator') ?? "";
     if (x16emulator == "") {
         vscode.window.showErrorMessage('Commander X16 emulator error.');
         outputChannel.appendLine(`Commander X16 emulator not defined! Check ${config_section_name}.x16emulator in Extension Settings.`);
@@ -152,10 +147,10 @@ function runPrg(prgFile) {
         outputChannel.appendLine(`Commander X16 emulator not correctly defined:${x16emulator}! Check ${config_section_name}.x16emulator in Extension Settings.`);
         return;
     }
-    const x16emuScale = conf_section.get("x16emulatorScale");
+    const x16emuScale = conf_section.get("x16emulatorScale") ?? "";
     // If optional arguments are defined, add them to the arguments list
     let args = ["-scale", x16emuScale, "-prg", path.basename(prgFile)];
-    const x16emuKeymap = conf_section.get("x16emulatorKeymap");
+    const x16emuKeymap = conf_section.get("x16emulatorKeymap") ?? "";
     if (x16emuKeymap) {
         args.push("-keymap");
         args.push(x16emuKeymap);
@@ -168,7 +163,7 @@ function runPrg(prgFile) {
     if (x16emuRunPrg) {
         args.push("-run");
     }
-    const x16emuSDCard = conf_section.get("x16emulatorSDCard");
+    const x16emuSDCard = conf_section.get("x16emulatorSDCard") ?? "";
     if (x16emuSDCard) {
         if (fs.existsSync(x16emuSDCard)) {
             //file exists

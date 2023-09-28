@@ -58,6 +58,8 @@ The code is Open Source and aviable on GitHub.
 - [x] '-SDCard' option is optional.
 - [x] fix the emulator working directory
 - [ ] outdir as an option
+- [ ] run as an option
+- [ ] warp false by default
 - [ ] npm WARN deprecated vscode-test@1.6.1: This package has been renamed to @vscode/test-electron, please update to the new name
 
 ### [1.1.0]
