@@ -16,7 +16,7 @@
 	<array>
 		<dict>
 			<key>match</key>
-			<string>\b(adc|and|asl|bit|clc|cld|cli|clv|cmp|cpx|cpy|dec|dex|dey|eor|inc|inx|iny|lda|ldx|ldy|lsr|nop|ora|pha|php|pla|plp|rol|ror|sbc|sec|sed|sei|sta|stx|sty|tax|txa|tay|tya|tsx|txs)\b</string>
+			<string>\b(adc|and|asl|bit|clc|cld|cli|clv|cmp|cpx|cpy|dec|dex|dey|eor|inc|inx|iny|lda|ldx|ldy|lsr|nop|ora|pha|php|pla|plp|rol|ror|sbc|sec|sed|sei|sta|stx|sty|tax|txa|tay|tya|tsx|txs|phx|phy|plx|ply|tsb|trb|rmb0|rmb1|rmb2|rmb3|rmb4|rmb5|rmb6|rmb7|smb0|smb1|smb2|smb3|smb4|smb5|smb6|smb7|stz|stp|wai)\b</string>
 			<key>name</key>
 			<string>keyword</string>
 		</dict>
@@ -28,7 +28,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(bcc|bcs|beq|bmi|bne|bpl|brk|bvc|bvs|jmp|jsr|rti|rts)\b</string>
+			<string>\b(bcc|bcs|beq|bmi|bne|bpl|brk|bvc|bvs|jmp|jsr|rti|rts|bra|bbs0|bbs1|bbs2|bbs3|bbs4|bbs5|bbs6|bbs7|bbr0|bbr1|bbr2|bbr3|bbr4|bbr5|bbr6|bbr7)\b</string>
 			<key>name</key>
 			<string>keyword.control</string>
 		</dict>

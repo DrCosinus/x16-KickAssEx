@@ -55,12 +55,19 @@ The code is Open Source and aviable on GitHub.
 ## Release Notes
  
 ### [1.2.0] Work in progress - Not released
-- [x] '-SDCard' option is optional.
+- [x] add some 65c02 missing opcodes (bra, stz, phx, plx, phy, ply, tsb, trb, bbr0..bbr7, bbs0..bbs7, rmb0..rm7, smb0..smb7, stp, wai)
+- [x] switch to typescript
+- [x] switch from vscode-test to @vscode/test-electron
+- [x] emulator '-SDCard' option is optional.
 - [x] fix the emulator working directory
+- [x] emulator '-warp' is false by default
+- [x] kickass '-showmem' as an option... kind useless memory map always visible :(
+- [x] kickass '-debug' as an option
+- [x] kickass '-symbolfile' as an option... kind useless symbol file is always created :(
+- [x] kickass '-bytedump' as an option
 - [ ] outdir as an option
-- [ ] run as an option
-- [ ] warp false by default
-- [ ] npm WARN deprecated vscode-test@1.6.1: This package has been renamed to @vscode/test-electron, please update to the new name
+- [ ] avoid to wipe the content of the output folder as an option
+- [ ] consider formatter, linter goto definition and help to convert from other assembler format (cc65, ...)
 
 ### [1.1.0]
 - Added '-SDCard' option in the extensions settings for the Commander X16 emulator.

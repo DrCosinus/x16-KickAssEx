@@ -6,7 +6,6 @@ import * as manifest from './package.json'
 
 const config_section_name = manifest.name;
 const display_name = manifest.displayName;
-const conf_section = vscode.workspace.getConfiguration(config_section_name);
 const outputChannel = vscode.window.createOutputChannel(display_name);
 
 export function activate(context: vscode.ExtensionContext)
@@ -22,7 +21,7 @@ export function activate(context: vscode.ExtensionContext)
 				console.log(`${cmd.title}: OK`);
 				break;
 			case "X16 Build and Run":
-				let commandRun = vscode.commands.registerCommand(cmd.command, () => runPrg(buildPrg())); 
+				let commandRun = vscode.commands.registerCommand(cmd.command, buildAndRunPrg); 
 				context.subscriptions.push(commandRun);
 				console.log(`${cmd.title}: OK`);
 				break;
@@ -43,22 +42,28 @@ export function deactivate()
 {
 }
 
+async function buildAndRunPrg()
+{
+	runPrg(await buildPrg());
+}
 
 /**  	
 This function will build a .prg file from the assembler source with Kick Assembler and return the path & name of the generated .prg file
 */
-function buildPrg() : string
+async function buildPrg() : Promise<string>
 {
 	const editor = vscode.window.activeTextEditor;
 	if (editor)
 	{
-		if (editor.document.isDirty)
+		try
 		{
-			editor.document.save().then(() => {
-				vscode.window.showInformationMessage('File saved');
-			}, (error) => {
-				vscode.window.showErrorMessage(`Error occured when saving the file: ${error}`);
-			});
+			await editor.document.save();
+			vscode.window.showInformationMessage('File saved');
+		}
+		catch(error)
+		{
+			vscode.window.showErrorMessage(`Error occured when saving the file: ${error}`);
+			return "";
 		}
 
 		const outDir = "bin";
@@ -67,6 +72,7 @@ function buildPrg() : string
 		const workDir = path.dirname(fileToCompile);
 		const outputDir = path.join(workDir, outDir);
 		const prgFilepath = path.join(outputDir, prgFilename);
+		const conf_section = vscode.workspace.getConfiguration(config_section_name);
 		
 		// Get settings from user configuration and check if they are correctly defined
 		outputChannel.clear;
@@ -115,10 +121,47 @@ function buildPrg() : string
 		fs.readdirSync(outputDir).map((file) => fs.unlinkSync(path.join(outputDir, file)));
 
 		//  Kick Assembler with arguments
-		const args = ["-jar", kickAssJar, "-debug", "-bytedump", "-symbolfile", "-symbolfiledir", outputDir, "-showmem", "-maxAddr", "131072", "-odir", outputDir, fileToCompile];
+		const args = ["-jar", kickAssJar, "-maxAddr", "131072", "-odir", outputDir, fileToCompile];
+
+		{
+			const debug = conf_section.get("debug");
+			if (debug)
+			{
+				args.push("-debug");
+			}
+		}
+
+		{
+			const bytedump = conf_section.get("bytedump");
+			if (bytedump)
+			{
+				args.push("-bytedump");
+				const lstFilename = path.basename(fileToCompile).replace(path.extname(fileToCompile), ".lst");
+				args.push("-bytedumpfile");
+				args.push(lstFilename);
+			}
+		}
+
+		{
+			const showmem = conf_section.get("showmem");
+			if (showmem)
+			{
+				args.push("-showmem");
+			}
+		}
+
+		{
+			const symbols = conf_section.get("symbols");
+			if (symbols)
+			{
+				args.push("-symbolfile");
+				args.push("-symbolfiledir");
+				args.push(outputDir);
+			}
+		}
 
 		//display the executed command in the output window
-		outputChannel.append(`${java} ${args.join(" ")}`);
+		outputChannel.appendLine(`${java} ${args.join(" ")}`);
 
 		// Execute Kick Assembler. The process is launched in syncrone mode as the .prg file has to be build before launching the emulator
 		let runjava = cp.spawnSync(java, args);
@@ -134,6 +177,7 @@ function buildPrg() : string
 
 function runPrg(prgFile: string) : undefined
 {
+	const conf_section = vscode.workspace.getConfiguration(config_section_name);
 	outputChannel.appendLine("X16 emulator starting :");
 
 	if (!prgFile)

@@ -72,6 +72,26 @@
                     "default": "java",
                     "description": "Java VM"
                 },
+                "x16-kickass-ex.debug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Additional debug info, like stacktraces, to the output"
+                },
+                "x16-kickass-ex.showmem": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show a memory map after assembling."
+                },
+                "x16-kickass-ex.symbols": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Generates a .sym file with the resolved symbols. The file can be used in other sources with the .import source directive. Its written next to the prg file."
+                },
+                "x16-kickass-ex.bytedump": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Dumps the assembled bytes in the file ByteDump.txt together with the code that generated them"
+                },
                 "x16-kickass-ex.x16emulator": {
                     "type": "string",
                     "default": "",
