@@ -1,0 +1,14 @@
+{
+	"BasicUpstart" : {
+		"scope": "kickassembler",
+		"prefix": "basic_upstart",
+		"body": [
+			"\t.cpu _65c02",
+			"\t* = \\$0801 \"Basic\"",
+			"\tBasicUpstart(${1:\\$080D})'",
+			"",
+			"\t* = ${2:\\$080D} \"Assembler\""
+		],
+		"description": "bla bla description"
+	}
+}

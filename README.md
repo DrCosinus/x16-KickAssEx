@@ -65,6 +65,8 @@ The code is Open Source and aviable on GitHub.
 - [x] kickass '-debug' as an option
 - [x] kickass '-symbolfile' as an option... kind useless symbol file is always created :(
 - [x] kickass '-bytedump' as an option
+- [x] add some kick assembler snippets 
+  - [x] basic_upstart
 - [ ] outdir as an option
 - [ ] avoid to wipe the content of the output folder as an option
 - [ ] consider formatter, linter goto definition and help to convert from other assembler format (cc65, ...)
