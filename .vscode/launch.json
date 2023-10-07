@@ -9,10 +9,13 @@
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
-			"preLaunchTask": "tsc: build - tsconfig.json",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
-			]
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js",
+			],
+			"preLaunchTask": "${defaultBuildTask}",
 		},
 		{
 			"name": "Extension Tests",
@@ -20,8 +23,12 @@
 			"request": "launch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/test/suite/index"
-			]
+				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out.test/**/*.js",
+			],
+			"preLaunchTask": "${defaultBuildTask}",
 		}
 	]
 }

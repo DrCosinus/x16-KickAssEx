@@ -2,40 +2,21 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import * as manifest from './package.json'
 
-const config_section_name = manifest.name;
-const display_name = manifest.displayName;
-const outputChannel = vscode.window.createOutputChannel(display_name);
+const configSectionName = "x16-kickass-ex"; // package.json/name
+const displayName = "x16-KickAssEx"; // package.json/displayName;
+const outputChannel = vscode.window.createOutputChannel(displayName);
 
 export function activate(context: vscode.ExtensionContext)
 {
-	for (const cmd of manifest.contributes.commands)
 	{
-		outputChannel.appendLine(`Add Command ${cmd.command}`)
-		switch(cmd.title)
-		{
-			case "X16 Build":
-				let commandBuild = vscode.commands.registerCommand(cmd.command, buildPrg);
-				context.subscriptions.push(commandBuild);
-				console.log(`${cmd.title}: OK`);
-				break;
-			case "X16 Build and Run":
-				let commandRun = vscode.commands.registerCommand(cmd.command, buildAndRunPrg); 
-				context.subscriptions.push(commandRun);
-				console.log(`${cmd.title}: OK`);
-				break;
-			default:
-				console.log(`Command ${cmd.title}: Failure`);
-
-		}
+		let command = vscode.commands.registerCommand(`${configSectionName}.build`, buildPrg);
+		context.subscriptions.push(command);
 	}
-	// console.log(`default :(`);
-	// let commandBuild = vscode.commands.registerCommand(`${config_section_name}.build`, buildPrg);
-	// let commandRun = vscode.commands.registerCommand(`${config_section_name}.run`, () => runPrg(buildPrg())); // Build then run 
-
-	// context.subscriptions.push(commandBuild);
-	// context.subscriptions.push(commandRun);
+	{
+		let command = vscode.commands.registerCommand(`${configSectionName}.build_n_run`, buildAndRunPrg); 
+		context.subscriptions.push(command);
+	}
 }
 
 export function deactivate()
@@ -72,36 +53,37 @@ async function buildPrg() : Promise<string>
 		const workDir = path.dirname(fileToCompile);
 		const outputDir = path.join(workDir, outDir);
 		const prgFilepath = path.join(outputDir, prgFilename);
-		const conf_section = vscode.workspace.getConfiguration(config_section_name);
+		const confSection = vscode.workspace.getConfiguration(configSectionName);
 		
 		// Get settings from user configuration and check if they are correctly defined
 		outputChannel.clear;
 		outputChannel.show(false);
 
-		const java : string = conf_section.get("java") ?? "";
-		if (java == "")
+		const java : string = confSection.get("java") ?? "";
+		if (java === "")
 		{
 			vscode.window.showErrorMessage("JavaVM not defined!");
-			outputChannel.appendLine(`JavaVM not defined! Set ${config_section_name}.java in Extension Settings.`);
+			outputChannel.appendLine(`JavaVM not defined! Set ${configSectionName}.java in Extension Settings.`);
 			return "";
 		}
 		
-		const kickAssJar : string = conf_section.get("kickAssJar") ?? "";
-		if (kickAssJar == "")
+		const kickAssJar : string = confSection.get("kickAssJar") ?? "";
+		if (kickAssJar === "")
 		{
 			vscode.window.showErrorMessage("Kick Assembler JAR path not defined!");
-			outputChannel.appendLine(`Kick Assembler JAR path not defined! Set ${config_section_name}.kickAssJar in Extension Settings.`);
+			outputChannel.appendLine(`Kick Assembler JAR path not defined! Set ${configSectionName}.kickAssJar in Extension Settings.`);
 			return "";
 		}
 		if (!fs.existsSync(kickAssJar))
 		{
 			vscode.window.showErrorMessage("Kick Assembler JAR file not found.");
-			outputChannel.appendLine(`Incorrect KickAssembler Jar:"${kickAssJar}"! Check ${config_section_name}.kickAssJar in Extension Settings.`);
+			outputChannel.appendLine(`Incorrect KickAssembler Jar:"${kickAssJar}"! Check ${configSectionName}.kickAssJar in Extension Settings.`);
 			return "";
 		}
 
 		// Check if File to Compile is a file with one of the assembler extensions
-		const assemblerExtensions = manifest.contributes.languages[0].extensions; // [".asm", ".a", ".s", ".lib", ".inc"];
+		const assemblerExtensions = [".asm", ".a", ".s", ".lib", ".inc"]; 	// packages.json / contributes / languages / extensions
+																			// also in kickassembler.tmLanguage fileTypes array
 		if (assemblerExtensions.includes(path.extname(fileToCompile)))
 		{
 			outputChannel.appendLine(`Compiling "${fileToCompile}"`);
@@ -124,7 +106,7 @@ async function buildPrg() : Promise<string>
 		const args = ["-jar", kickAssJar, "-maxAddr", "131072", "-odir", outputDir, fileToCompile];
 
 		{
-			const debug = conf_section.get("debug");
+			const debug = confSection.get("debug");
 			if (debug)
 			{
 				args.push("-debug");
@@ -132,7 +114,7 @@ async function buildPrg() : Promise<string>
 		}
 
 		{
-			const bytedump = conf_section.get("bytedump");
+			const bytedump = confSection.get("bytedump");
 			if (bytedump)
 			{
 				args.push("-bytedump");
@@ -143,7 +125,7 @@ async function buildPrg() : Promise<string>
 		}
 
 		{
-			const showmem = conf_section.get("showmem");
+			const showmem = confSection.get("showmem");
 			if (showmem)
 			{
 				args.push("-showmem");
@@ -151,7 +133,7 @@ async function buildPrg() : Promise<string>
 		}
 
 		{
-			const symbols = conf_section.get("symbols");
+			const symbols = confSection.get("symbols");
 			if (symbols)
 			{
 				args.push("-symbolfile");
@@ -172,12 +154,14 @@ async function buildPrg() : Promise<string>
 		return prgFilepath;
 	}
 	else
+	{
 		return "";
+	}
 }
 
 function runPrg(prgFile: string) : undefined
 {
-	const conf_section = vscode.workspace.getConfiguration(config_section_name);
+	const confSection = vscode.workspace.getConfiguration(configSectionName);
 	outputChannel.appendLine("X16 emulator starting :");
 
 	if (!prgFile)
@@ -187,45 +171,45 @@ function runPrg(prgFile: string) : undefined
 	}
 
 	// Get settings from user configuration and check if they are defined
-	const x16emulator : string = conf_section.get('x16emulator') ?? "";
-	if (x16emulator == "")
+	const x16emulator : string = confSection.get('x16emulator') ?? "";
+	if (x16emulator === "")
 	{
 		vscode.window.showErrorMessage('Commander X16 emulator error.');
-		outputChannel.appendLine(`Commander X16 emulator not defined! Check ${config_section_name}.x16emulator in Extension Settings.`);
+		outputChannel.appendLine(`Commander X16 emulator not defined! Check ${configSectionName}.x16emulator in Extension Settings.`);
 		return;
 	}
 	if (!fs.existsSync(x16emulator))
 	{
 		vscode.window.showErrorMessage("Commander X16 emulator error.");
-		outputChannel.appendLine(`Commander X16 emulator not correctly defined:${x16emulator}! Check ${config_section_name}.x16emulator in Extension Settings.`);
+		outputChannel.appendLine(`Commander X16 emulator not correctly defined:${x16emulator}! Check ${configSectionName}.x16emulator in Extension Settings.`);
 		return;
 	}
 	
-	const x16emuScale : string = conf_section.get("x16emulatorScale") ?? "";
+	const x16emuScale : string = confSection.get("x16emulatorScale") ?? "";
 	
 	// If optional arguments are defined, add them to the arguments list
 	let args : string[] = ["-scale", x16emuScale, "-prg", path.basename(prgFile)];
 	
-	const x16emuKeymap : string = conf_section.get("x16emulatorKeymap") ?? "";
+	const x16emuKeymap : string = confSection.get("x16emulatorKeymap") ?? "";
 	if (x16emuKeymap)
 	{
 		args.push("-keymap");
 		args.push(x16emuKeymap);
 	}
 	
-	const x16emuDebug = conf_section.get("x16emulatorDebug");
+	const x16emuDebug = confSection.get("x16emulatorDebug");
 	if (x16emuDebug)
 	{
 		args.push("-debug");
 	}
 	
-	const x16emuRunPrg = conf_section.get("x16emulatorRunPrg");
+	const x16emuRunPrg = confSection.get("x16emulatorRunPrg");
 	if (x16emuRunPrg)
 	{
 		args.push("-run");
 	}
 	
-	const x16emuSDCard : string = conf_section.get("x16emulatorSDCard") ?? "";
+	const x16emuSDCard : string = confSection.get("x16emulatorSDCard") ?? "";
 	if (x16emuSDCard) {
 		if (fs.existsSync(x16emuSDCard)) {
 			//file exists
@@ -233,12 +217,12 @@ function runPrg(prgFile: string) : undefined
 			args.push(x16emuSDCard);
 		} else {
 			vscode.window.showErrorMessage("Commander X16 emulator error.");
-			outputChannel.appendLine(`Commander X16 sdcard path not correctly defined: "${ x16emuSDCard }"! Check ${config_section_name}.x16emulatorSDCard in Extension Settings.`);
+			outputChannel.appendLine(`Commander X16 sdcard path not correctly defined: "${ x16emuSDCard }"! Check ${configSectionName}.x16emulatorSDCard in Extension Settings.`);
 			return;
 		}
 	}
 
-	const x16emuWarp = conf_section.get("x16emulatorWarp");
+	const x16emuWarp = confSection.get("x16emulatorWarp");
 	if (x16emuWarp)
 	{
 		args.push("-warp");
