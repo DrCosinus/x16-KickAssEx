@@ -1,0 +1,336 @@
+{
+  "fileTypes": [
+    ".asm",
+    ".inc",
+    ".s",
+    ".a",
+    ".lib"
+  ],
+  "name": "kickassembler",
+  "patterns": [
+    {
+      "match": "\\b(adc|and|asl|bit|clc|cld|cli|clv|cmp|cpx|cpy|dec|dex|dey|eor|inc|inx|iny|lda|ldx|ldy|lsr|nop|ora|pha|php|pla|plp|rol|ror|sbc|sec|sed|sei|sta|stx|sty|tax|txa|tay|tya|tsx|txs|phx|phy|plx|ply|tsb|trb|rmb0|rmb1|rmb2|rmb3|rmb4|rmb5|rmb6|rmb7|smb0|smb1|smb2|smb3|smb4|smb5|smb6|smb7|stz|stp|wai)\\b(\\s*\\#)?",
+      "name": "keyword"
+    },
+    {
+      "match": "\\b(aac|aax|alr|anc|ane|arr|aso|asr|atx|axa|axs|dcm|dcp|dop|hlt|ins|isb|isc|jam|kil|lae|lar|las|lax|lse|lxa|oal|rla|rra|sax|sbx|skb|sha|shs|say|shx|shy|slo|skw|sre|sxa|sya|tas|top|xaa|xas)\\b",
+      "name": "invalid.illegal"
+    },
+    {
+      "match": "\\b(bcc|bcs|beq|bmi|bne|bpl|brk|bvc|bvs|jmp|jsr|rti|rts|bra|bbs0|bbs1|bbs2|bbs3|bbs4|bbs5|bbs6|bbs7|bbr0|bbr1|bbr2|bbr3|bbr4|bbr5|bbr6|bbr7)\\b",
+      "name": "keyword.control"
+    },
+    {
+      "begin": "/\\*",
+      "captures": {
+        "0": {
+          "name": "punctuation.definition.comment"
+        }
+      },
+      "end": "\\*/\\n?",
+      "name": "comment.block"
+    },
+    {
+      "begin": "//",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.comment"
+        }
+      },
+      "end": "$\\n?",
+      "name": "comment.line.double-slashs"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "storage.type.kickass"
+        }
+      },
+      "match": "(?:^|\\s)(\\.(word|byte|text|dword))\\b"
+    },
+    {
+      "match": "\\b(CmdArgument)\\b",
+      "name": "storage.type.kickass"
+    },
+    {
+      "match": "\\b(getNamespace)\\b",
+      "name": "support.function.language"
+    },
+    {
+      "match": "\\b(toIntString|toBinaryString|toOctalString|toHexString)\\b",
+      "name": "support.function.string"
+    },
+    {
+      "match": "\\b(abs|acos|asin|atan|atan2|cbrt|ceil|cos|cosh|exp|expm1|floor|hypot|IEEEremainder|log|log10|log1p|max|min|pow|mod|random|round|signum|sin|sinh|sqrt|tan|tanh|toDegrees|toRadians)\\b",
+      "name": "support.function.math"
+    },
+    {
+      "match": "\\b(LoadBinary|LoadPicture|LoadSid|createFile)\\b",
+      "name": "support.function.file"
+    },
+    {
+      "match": "\\b(Matrix|RotationMatrix|ScaleMatrix|MoveMatrix|PerspectiveMatrix|Vector)\\b",
+      "name": "support.function.3d"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "storage.type.keyword.kickass.field"
+        }
+      },
+      "match": "(?:^|\\s)(\\.(var|label|const))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass.function.object"
+        }
+      },
+      "match": "(?:^|\\s)(\\.(struct|enum))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass.function"
+        }
+      },
+      "match": "(?:^|\\s)(\\.(eval|fill|print|printnow|import|align|assert|asserterror|error))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass"
+        }
+      },
+      "match": "(?:^|\\s)(\\.(pc|importonce|pseudopc|return|eval))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)(\\*)(?=\\s*\\=\\s*)"
+    },
+    {
+      "match": "(?:^|\\s)(\\.(encoding))\\b",
+      "name": "storage.modifier"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass.preprocessor"
+        },
+        "3": {
+          "name": "constant.kickass.preprocessor"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)(\\#(define|elif|if|undef))\\s+(([A-Za-z_][A-Za-z0-9_]*)+)\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass.preprocessor"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)(\\#(else|endif|importonce))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass.preprocessor"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)(\\#(import))(?=\\s+\\\".*\\\")"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.kickass.preprocessor"
+        },
+        "3": {
+          "name": "constant.kickass.preprocessor"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)(\\#(importif))\\s+!*(([A-Za-z_][A-Za-z0-9_]*)+)(?=\\s+\\\".*\\\")"
+    },
+    {
+      "match": "\\b(true|false)\\b",
+      "name": "constant.language"
+    },
+    {
+      "match": "\\b(BLACK|WHITE|RED|CYAN|PURPLE|GREEN|BLUE|YELLOW|ORANGE|BROWN|LIGHT_RED|DARK_GRAY|GRAY|DARK_GREY|GREY|LIGHT_GREEN|LIGHT_BLUE|LIGHT_GRAY|LIGHT_GREY)\\b",
+      "name": "constant.language.color"
+    },
+    {
+      "match": "\\b(LDA_IMM|LDA_ZP|LDA_ZPX|LDX_ZPY|LDA_IZPX|LDA_IZPY|LDA_ABS|LDA_ABSX|LDA_ABSY|JMP_IND|BNE_REL|RTS)\\b",
+      "name": "constant.language.opcodes"
+    },
+    {
+      "match": "\\b(BF_C64FILE|BF_BITMAP_SINGLECOLOR|BF_KOALA|BF_FLI)\\b",
+      "name": "constant.language.file"
+    },
+    {
+      "match": "\\b(AT_ABSOLUTE|AT_ABSOLUTEX|AT_ABSOLUTEY|AT_IMMEDIATE|AT_INDIRECT|AT_IZEROPAGEX|AT_IZEROPAGEY|AT_NONE)\\b",
+      "name": "constant.language.pseudocommand"
+    },
+    {
+      "match": "\\b(PI|E)\\b",
+      "name": "constant.language.math"
+    },
+    {
+      "match": "\\b(Hashtable)\\b",
+      "name": "storage.type.hashtable"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "storage.type.list"
+        },
+        "2": {
+          "name": "variable.parameter"
+        }
+      },
+      "match": "\\b(list|List)\\(\\s*(\\$?\\d+)*\\s*\\)",
+      "name": "list"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.control.for"
+        },
+        "2": {
+          "name": "storage.type.for"
+        }
+      },
+      "match": "(?:^|\\s)(\\.for)\\s*\\((var)\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.control.if"
+        }
+      },
+      "match": "(?:^|\\s)((\\.if)\\b|(else)\\b)"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.control.while"
+        }
+      },
+      "match": "(?:^|\\s)(\\.while)(?=\\s*\\(.*\\))"
+    },
+    {
+      "begin": "\"",
+      "end": "\"",
+      "name": "string.quoted.double.untitled",
+      "patterns": [
+        {
+          "match": "\\\\.",
+          "name": "constant.character.escape"
+        }
+      ]
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "meta.filenamespace.identifier"
+        },
+        "2": {
+          "name": "keyword.type.filenamespace"
+        },
+        "3": {
+          "name": "entity.name.filenamespace"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)((\\.filenamespace)\\s*([A-Za-z_][A-Za-z0-9_]*))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "meta.namespace.identifier"
+        },
+        "2": {
+          "name": "keyword.type.namespace"
+        },
+        "3": {
+          "name": "entity.name.namespace"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)((\\.namespace)\\s*([A-Za-z_][A-Za-z0-9_]*))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "meta.label.identifier"
+        },
+        "3": {
+          "name": "entity.name.label"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)(!|(!?@?([A-Za-z_][A-Za-z0-9_]*))):",
+      "name": "label"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "meta.pseudocommand.identifier"
+        },
+        "2": {
+          "name": "storage.type.pseudocommand"
+        },
+        "3": {
+          "name": "entity.name.pseudocommand"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)((\\.pseudocommand)\\s*(\\@*[A-Za-z_][A-Za-z0-9_]*))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "meta.label.identifier"
+        },
+        "2": {
+          "name": "storage.type.function"
+        },
+        "3": {
+          "name": "entity.name.function"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)((\\.function)\\s*(\\@*[A-Za-z0-9_]*))\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "meta.macro.identifier"
+        },
+        "2": {
+          "name": "storage.type.macro"
+        },
+        "3": {
+          "name": "entity.name.macro"
+        }
+      },
+      "match": "(?:^\\s*|;\\s*)((\\.macro)\\s*(\\@*[A-Za-z_][A-Za-z0-9_]*))\\b"
+    },
+    {
+      "match": "\\$\\h+",
+      "name": "constant.numeric.hex"
+    },
+    {
+      "match": "\\b\\d+",
+      "name": "constant.numeric.decimal"
+    },
+    {
+      "match": "%[01]+",
+      "name": "constant.numeric.binary"
+    },
+    {
+      "match": "[+\\-*\\/]|&|\\||<<|>>|<|>",
+      "name": "keyword.operator"
+    }
+  ],
+  "scopeName": "source.assembly.kickassembler",
+  "uuid": "107f6c61-6808-4778-893e-8fb1cbb81f30"
+}

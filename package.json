@@ -20,9 +20,7 @@
 	"engines": {
 		"vscode": "^1.83.0"
 	},
-	"categories": [
-		"Programming Languages","Snippets"
-	],
+	"categories": [ "Programming Languages", "Snippets", "Themes" ],
 	"activationEvents": [ "onLanguage:states" ],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -36,36 +34,26 @@
 				"title": "X16 Build and Run"
 			}
 		],
-		"languages": [
-			{
-				"id": "kickassembler",
-				"aliases": [
-					"kickassembler",
-					"kickass"
-				],
-				"extensions": [
-					".asm",
-					".inc",
-					".s",
-					".a",
-					".lib"
-				],
-				"configuration": "./language-configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "kickassembler",
-				"scopeName": "source.assembly.kickassembler",
-				"path": "./syntaxes/kickassembler.tmLanguage"
-			}
-		],
-		"snippets": [
-			{
-				"language": "kickassembler",
-				"path": "./syntaxes/kickassembler.code-snippets"
-			}
-		],
+		"languages": [{
+			"id": "kickassembler",
+			"aliases": [ "kickassembler", "kickass"	],
+			"extensions": [ ".asm", ".inc", ".s", ".a", ".lib" ],
+			"configuration": "./language-configuration.json"
+		}],
+		"grammars": [{
+			"language": "kickassembler",
+			"scopeName": "source.assembly.kickassembler",
+			"path": "./syntaxes/kickassembler.tmLanguage.json"
+		}],
+		"snippets": [{
+			"language": "kickassembler",
+			"path": "./snippets/kickassembler.code-snippets"
+		}],
+		"themes": [{
+			"label": "KickAssembler",
+			"uiTheme": "vs-dark",
+			"path": "./themes/KickAssembler-color-theme.json"
+		}],
 		"configuration": {
 			"title": "X16 Kick Assembler Ex Configuration",
 			"properties": {
@@ -136,20 +124,17 @@
 				}
 			}
 		},
-		"keybindings": [
-			{
-				"command": "x16-kickass-ex.build",
-				"key": "shift+ctrl+b",
-				"mac": "shift+cmd+b",
-				"when": "editorLangId == kickassembler"
-			},
-			{
-				"command": "x16-kickass-ex.build_n_run",
-				"key": "shift+ctrl+r",
-				"mac": "shift+cmd+r",
-				"when": "editorLangId == kickassembler"
-			}
-		]
+		"keybindings": [{
+			"command": "x16-kickass-ex.build",
+			"key": "shift+ctrl+b",
+			"mac": "shift+cmd+b",
+			"when": "editorLangId == kickassembler"
+		}, {
+			"command": "x16-kickass-ex.build_n_run",
+			"key": "shift+ctrl+r",
+			"mac": "shift+cmd+r",
+			"when": "editorLangId == kickassembler"
+		}]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
