@@ -8,6 +8,7 @@
   ],
   "name": "kickassembler",
   "patterns": [
+    { "include": "#line" },
     {
       "match": "\\b(adc|and|asl|bit|clc|cld|cli|clv|cmp|cpx|cpy|dec|dex|dey|eor|inc|inx|iny|lda|ldx|ldy|lsr|nop|ora|pha|php|pla|plp|rol|ror|sbc|sec|sed|sei|sta|stx|sty|tax|txa|tay|tya|tsx|txs|phx|phy|plx|ply|tsb|trb|rmb0|rmb1|rmb2|rmb3|rmb4|rmb5|rmb6|rmb7|smb0|smb1|smb2|smb3|smb4|smb5|smb6|smb7|stz|stp|wai)\\b(\\s*\\#)?",
       "name": "keyword"
@@ -301,7 +302,7 @@
       "match": "(?:^\\s*|;\\s*)((\\.function)\\s*(\\@*[A-Za-z0-9_]*))\\b"
     },
     {
-      "captures": {
+      "_captures": {
         "1": {
           "name": "meta.macro.identifier"
         },
@@ -312,19 +313,7 @@
           "name": "entity.name.macro"
         }
       },
-      "match": "(?:^\\s*|;\\s*)((\\.macro)\\s*(\\@*[A-Za-z_][A-Za-z0-9_]*))\\b"
-    },
-    {
-      "match": "\\$\\h+",
-      "name": "constant.numeric.hex"
-    },
-    {
-      "match": "\\b\\d+",
-      "name": "constant.numeric.decimal"
-    },
-    {
-      "match": "%[01]+",
-      "name": "constant.numeric.binary"
+      "_match": "(?:^\\s*|;\\s*)((\\.macro)\\s*(\\@*[A-Za-z_][A-Za-z0-9_]*))\\b"
     },
     {
       "match": "[+\\-*\\/]|&|\\||<<|>>|<|>",
@@ -332,5 +321,39 @@
     }
   ],
   "scopeName": "source.assembly.kickassembler",
-  "uuid": "107f6c61-6808-4778-893e-8fb1cbb81f30"
+  "uuid": "107f6c61-6808-4778-893e-8fb1cbb81f30",
+  "repository": {
+    "numeric-literal": {
+      "patterns": [{
+          "match": "(\\$)([0-9A-Fa-f]+)",
+          "captures": { "1": { "name": "ponctuation"}, "2": { "name": "constant.numeric.hex" } }
+        }, {
+          "match": "(%)([01]+)",
+          "captures": { "1": { "name": "ponctuation"}, "2": { "name": "constant.numeric.binary" } }
+        }, {
+          "name": "constant.numeric",
+          "match": "(?<![a-zA-Z_0-9.])[0-9]+(?:\\.[0-9]*)?"
+        }]
+    },
+    "line": {
+      "patterns" : [
+        { "include": "#numeric-literal" },
+        { "include": "#macro-def" }
+      ]
+    },
+    "string-literal": {
+
+    },
+    "scope": {
+      "begin": "{",
+      "patterns": [{ "include": "#line" }],
+      "end": "}"
+    },
+    "macro-def": {
+      "begin": "(?:^|;)\\s*(\\.macro)\\s*(@?!?[a-fA-F_][a-fA-F_0-9]*)",
+      "beginCaptures": { "1": { "name": "entity.name.macro" } },
+      "patterns": [{ "include": "#scope" }]
+    }
+
+  }
 }

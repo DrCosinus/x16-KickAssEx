@@ -55,3 +55,17 @@ or
 - [Site](https://www.antlr.org/)
 - [GitHub](https://github.com/ANTLR/grammars-v4)
 - [Lab](http://lab.antlr.org/)
+
+```console
+> pip install antlr4-tools
+
+> antlr4-parse KickAssembler.g4 prog test.asm -gui
+
+> antlr4 -Dlanguage=CSharp KickAssembler.g4 -o out 
+> antlr4 -Dlanguage=CSharp src/antlr/KickAssembler.g4 -o out/antlr
+```
+TypeScript, CSharp
+
+npm install antlr4
+npm install vscode-languageserver
+npm install antlr4ts
